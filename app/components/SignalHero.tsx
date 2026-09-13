@@ -5,8 +5,9 @@ import styles from "./SignalHero.module.css";
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
-function ArrowIcon({ down = false }: { down?: boolean }) {
-  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style={down ? { transform: "rotate(90deg)" } : undefined}><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth="1.5" /></svg>;
+// Direction uses `rotate` so hover nudges can use `translate` without replacing it.
+function ArrowIcon({ rotate = 0 }: { rotate?: number }) {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style={rotate ? { rotate: `${rotate}deg` } : undefined}><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" strokeWidth="1.5" /></svg>;
 }
 
 export default function SignalHero() {
@@ -22,24 +23,23 @@ export default function SignalHero() {
     if (!section || !stage || !video) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const mobile = window.matchMedia("(max-width: 767px)");
+    // Keep touch phones/tablets (including landscape) out of the scroll decoder.
+    const mobile = window.matchMedia("(max-width: 767px), (max-width: 1023px) and (pointer: coarse)");
     let frame = 0;
     let progress = 0;
     let failed = false;
 
     // Allow one seek at a time. Each completion picks up the latest scroll target.
     const seek = () => {
-      if (reducedMotion.matches || failed || video.readyState < 2 || video.seeking || !Number.isFinite(video.duration)) return;
+      if (mobile.matches || reducedMotion.matches || failed || video.readyState < 2 || video.seeking || !Number.isFinite(video.duration)) return;
       const target = progress * Math.max(0, video.duration - 1 / 24);
       if (Math.abs(video.currentTime - target) > 1 / 48) video.currentTime = target;
     };
 
     const render = () => {
       frame = 0;
-      const stickyTop = mobile.matches ? 64 : 0;
-      const sectionPadding = mobile.matches ? 64 : 0;
-      const travel = section.offsetHeight - sectionPadding - stage.offsetHeight;
-      progress = reducedMotion.matches ? 0 : clamp((stickyTop - section.getBoundingClientRect().top - sectionPadding) / Math.max(1, travel));
+      const travel = section.offsetHeight - stage.offsetHeight;
+      progress = reducedMotion.matches || mobile.matches ? 0 : clamp(-section.getBoundingClientRect().top / Math.max(1, travel));
       const introOpacity = 1 - clamp((progress - 0.2) / 0.18);
       const nextOpacity = clamp((progress - 0.43) / 0.18);
       section.style.setProperty("--journey", String(progress));
@@ -53,6 +53,7 @@ export default function SignalHero() {
     };
 
     const requestUpdate = () => {
+      if (mobile.matches || reducedMotion.matches) return;
       if (!frame) frame = window.requestAnimationFrame(render);
     };
     const loaded = () => {
@@ -64,30 +65,34 @@ export default function SignalHero() {
       section.dataset.videoReady = "false";
     };
     const configure = () => {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
       video.pause();
       failed = false;
       section.dataset.videoReady = "false";
-      if (reducedMotion.matches) {
+      if (reducedMotion.matches || mobile.matches) {
         video.removeAttribute("src");
         video.load();
       } else {
-        const source = mobile.matches ? "/herovid/hero-mobile.mp4" : "/herovid/hero-desktop.mp4";
+        const source = "/herovid/hero-desktop.mp4";
         if (video.getAttribute("src") !== source) {
           video.src = source;
           video.load();
         } else if (video.readyState >= 2) {
           section.dataset.videoReady = "true";
         }
+        window.addEventListener("scroll", requestUpdate, { passive: true });
+        window.addEventListener("resize", requestUpdate);
       }
-      requestUpdate();
+      render();
     };
 
     video.addEventListener("loadeddata", loaded);
     video.addEventListener("canplay", requestUpdate);
     video.addEventListener("seeked", seek);
     video.addEventListener("error", onError);
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
     reducedMotion.addEventListener("change", configure);
     mobile.addEventListener("change", configure);
     configure();
@@ -116,14 +121,14 @@ export default function SignalHero() {
 
         <div className={styles.masthead}>
           <a href="#top" className={styles.identity} aria-label="Fahim Ahmed Emon, home"><span className={styles.identityMark} aria-hidden="true">fe.</span><span>FAHIM AHMED EMON<small>FULL STACK DEVELOPER & TEAM LEAD</small></span></a>
-          <a className={styles.resume} href="/Fahim_Ahmed_Emon_Resume.pdf" download>Résumé <ArrowIcon down /></a>
+          <a className={styles.resume} href="/Fahim_Ahmed_Emon_Resume.pdf" download>Resume <ArrowIcon rotate={90} /></a>
         </div>
 
         <div className={styles.story}>
           <div className={styles.intro}>
             <p className={styles.eyebrow}><span /> ENGINEERING THE WHOLE EXPERIENCE</p>
             <h1 id="hero-title">Beyond the<br /><em>interface.</em></h1>
-            <p className={styles.description}>I’m Fahim. I turn complex ideas into intuitive products — and engineer the systems that power them.</p>
+            <p className={styles.description}>I’m Fahim. I turn complex ideas into intuitive products and engineer the systems that power them.</p>
           </div>
           <div className={styles.reveal} aria-hidden="true">
             <p className={styles.eyebrow}><span /> FROM FIRST IDEA TO FINAL DEPLOYMENT</p>
@@ -136,12 +141,12 @@ export default function SignalHero() {
           <div className={styles.actionRow}>
             <div className={styles.actions}>
               <a className={styles.primary} href="#projects" data-cursor="Work">Explore my work <ArrowIcon /></a>
-              <a className={styles.secondary} href="#contact">Let’s talk <span aria-hidden="true">↗</span></a>
+              <a className={styles.secondary} href="#contact"><span className={styles.linkLabel}>Let’s talk</span><ArrowIcon rotate={-45} /></a>
             </div>
             <p className={styles.sideNote}>From the pixels you see<br />to the systems you don’t.</p>
           </div>
           <div className={styles.footer}>
-            <a className={styles.scrollHint} href="#expertise"><ArrowIcon down /><span><span className={styles.motionHint}>SCROLL TO EXPLORE</span><span className={styles.staticHint}>EXPLORE MY EXPERTISE</span></span></a>
+            <a className={styles.scrollHint} href="#projects"><ArrowIcon rotate={90} /><span><span className={styles.motionHint}>SCROLL TO EXPLORE</span><span className={styles.staticHint}>EXPLORE MY WORK</span></span></a>
             <div className={styles.chapters} aria-label="Interfaces, systems, intelligence">
               <span className={styles.chapter}><i>01</i> Interfaces</span>
               <span className={styles.chapter}><i>02</i> Systems</span>

@@ -23,10 +23,16 @@ const archivo = Archivo({
   display: "swap",
 });
 
+const siteTitle = "Fahim Ahmed Emon | Full Stack Developer & Team Lead";
+const siteDescription =
+  "Portfolio of Fahim Ahmed Emon, a full stack developer and team lead building production web, mobile, cloud and AI products.";
+
 export const metadata: Metadata = {
-  title: "Fahim Ahmed Emon — Full Stack Developer & Team Lead",
-  description:
-    "Portfolio of Fahim Ahmed Emon, a full stack developer and team lead building production web, mobile, cloud and AI products.",
+  title: siteTitle,
+  description: siteDescription,
+  authors: [{ name: "Fahim Ahmed Emon" }],
+  openGraph: { type: "website", title: siteTitle, description: siteDescription },
+  twitter: { card: "summary", title: siteTitle, description: siteDescription },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -36,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <meta name="theme-color" content="#fcfcfc" />
         <script dangerouslySetInnerHTML={{ __html: themeInitializationScript }} />
       </head>
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }

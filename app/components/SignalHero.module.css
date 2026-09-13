@@ -4,6 +4,8 @@
   --intro-y: 0px;
   --next-opacity: 0;
   --next-y: 24px;
+  --hero-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hero-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   height: 340svh;
   background: #101211;
@@ -36,9 +38,8 @@
 .identity { display: flex; align-items: center; gap: 14px; font-size: 11px; font-weight: 600; letter-spacing: 0.12em; }
 .identityMark { color: #ff724d; font-size: 34px; letter-spacing: -0.1em; font-weight: 800; line-height: 1; padding-right: 3px; }
 .identity small { display: block; margin-top: 5px; font-size: 8px; color: #b3b7b3; letter-spacing: 0.15em; font-weight: 400; }
-.resume { display: flex; align-items: center; gap: 20px; min-height: 44px; font-size: 12px; }
-.resume svg { width: 17px; height: 17px; }
-.resume:hover { color: #ff8865; }
+.resume { display: flex; align-items: center; gap: 20px; min-height: 44px; font-size: 12px; transition: color 220ms ease; }
+.resume svg { width: 17px; height: 17px; transition: translate 360ms var(--hero-ease); }
 .story { display: grid; align-content: center; padding-block: 40px; }
 .intro, .reveal { grid-area: 1 / 1; max-width: 790px; will-change: opacity, transform; }
 .intro { opacity: var(--intro-opacity); transform: translateY(var(--intro-y)); }
@@ -51,16 +52,17 @@
 .bottom { min-width: 0; }
 .actionRow { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-bottom: 38px; }
 .actions { display: flex; align-items: center; gap: 30px; }
-.primary { display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; min-height: 54px; padding: 0 23px; background: #f4f2e9; color: #151a16; font-size: 13px; font-weight: 600; border-radius: 2px; transition: background 180ms ease; }
-.primary svg { width: 21px; height: 21px; transition: transform 180ms ease; }
-.primary:hover { background: #ff8159; }
-.primary:hover svg { transform: translateX(4px); }
-.secondary { display: inline-flex; align-items: center; gap: 14px; min-height: 44px; font-size: 13px; }
-.secondary:hover { color: #ff8865; }
+.primary { position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; min-height: 54px; padding: 0 23px; background: #f4f2e9; color: #151a16; font-size: 13px; font-weight: 600; border-radius: 2px; touch-action: manipulation; transition: scale 280ms var(--hero-spring); }
+/* Accent sweeps in from the left and leaves to the right. */
+.primary::before { position: absolute; inset: 0; z-index: -1; background: #ff8159; content: ""; scale: 0 1; transform-origin: right center; transition: scale 560ms var(--hero-ease); }
+.primary svg { width: 21px; height: 21px; transition: translate 360ms var(--hero-ease); }
+.secondary { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; transition: color 220ms ease; }
+.secondary svg { width: 15px; height: 15px; transition: translate 360ms var(--hero-ease); }
+.linkLabel { padding-block: 3px; background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat; transition: background-size 460ms var(--hero-ease); }
 .sideNote { margin: 0; color: #c0c4bd; font-size: 12px; line-height: 1.7; text-align: right; }
 .footer { display: flex; align-items: center; justify-content: space-between; gap: 22px; min-height: 80px; border-top: 1px solid rgb(255 255 255 / 20%); }
-.scrollHint { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 9px; letter-spacing: 0.14em; color: #c6cac3; }
-.scrollHint svg { width: 19px; height: 19px; color: #ff8159; }
+.scrollHint { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 9px; letter-spacing: 0.14em; color: #c6cac3; transition: color 220ms ease; }
+.scrollHint svg { width: 19px; height: 19px; color: #ff8159; animation: hintBob 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 .staticHint { display: none; }
 .chapters { display: flex; gap: clamp(18px, 3vw, 45px); }
 .chapter { color: #92978f; font-size: 11px; transition: color 200ms ease; }
@@ -71,6 +73,31 @@
 .progress { position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: rgb(255 255 255 / 8%); }
 .progress span { display: block; width: 100%; height: 100%; background: #ff8159; transform: scaleX(var(--journey)); transform-origin: left; }
 .hero a:focus-visible { outline: 2px solid #ff916d; outline-offset: 6px; }
+
+@media (hover: hover) {
+  .resume:hover, .secondary:hover { color: #ff8865; }
+  .resume:hover svg { translate: 0 3px; }
+  .primary:hover::before { scale: 1 1; transform-origin: left center; }
+  .primary:hover svg { translate: 4px 0; }
+  .secondary:hover .linkLabel { background-size: 100% 1px; }
+  .secondary:hover svg { translate: 2px -2px; }
+  .scrollHint:hover { color: #f8f6f1; }
+}
+
+.primary:active { scale: 0.97; }
+.secondary:active .linkLabel { background-size: 100% 1px; }
+
+@keyframes hintBob { 0%, 100% { translate: 0 -1px; } 50% { translate: 0 3px; } }
+
+/* First-paint entrance on children only, so the scroll-driven intro transform stays untouched. */
+@keyframes heroRise { from { opacity: 0; translate: 0 20px; } }
+.masthead, .intro > *, .actionRow, .footer { animation: heroRise 1000ms var(--hero-ease) both; }
+.masthead { animation-delay: 60ms; }
+.intro > :nth-child(1) { animation-delay: 160ms; }
+.intro > :nth-child(2) { animation-delay: 240ms; }
+.intro > :nth-child(3) { animation-delay: 340ms; }
+.actionRow { animation-delay: 440ms; }
+.footer { animation-delay: 540ms; }
 
 @media (min-width: 768px) and (max-height: 720px) {
   .stage { padding-top: 20px; }
@@ -90,8 +117,8 @@
 }
 
 @media (max-width: 767px) {
-  .hero { height: calc(280svh + 64px); padding-top: 64px; }
-  .stage { top: 64px; height: calc(100svh - 64px); padding: 20px 24px 0; }
+  .hero { --header-height: 64px; padding-top: var(--header-height); }
+  .stage { padding: 20px 24px 0; }
   .identity { font-size: 9px; letter-spacing: 0.09em; }
   .identity small { font-size: 7px; letter-spacing: 0.05em; }
   .identityMark { display: none; }
@@ -148,5 +175,64 @@
   .intro { opacity: 1; transform: none; will-change: auto; }
   .reveal, .progress, .counter, .motionHint { display: none; }
   .staticHint { display: inline; }
-  .primary, .primary svg, .chapter { transition: none; }
+  .primary, .primary::before, .primary svg, .secondary svg, .resume svg, .linkLabel, .chapter { transition: none; }
+  .masthead, .intro > *, .actionRow, .footer, .scrollHint svg { animation: none; }
+}
+
+/* A normal document-flow hero has no empty sticky runway when browser chrome
+   retracts. svh keeps the composition stable; content can grow on short screens. */
+@media (max-width: 767px), (max-width: 1023px) and (pointer: coarse) {
+  .hero { height: auto; }
+  .stage {
+    position: relative;
+    top: 0;
+    height: auto;
+    min-height: calc(100vh - var(--header-height, 0px));
+    min-height: calc(100svh - var(--header-height, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .media video, .reveal, .progress, .counter, .motionHint { display: none; }
+  .intro { opacity: 1; transform: none; will-change: auto; }
+  .staticHint { display: inline; }
+  /* Keep the headline, copy and actions together so tall phones don't leave a gap above the buttons. */
+  .story { align-content: end; padding-block: clamp(28px, 8svh, 72px) clamp(28px, 5svh, 44px); }
+  .description { display: block; }
+  .actions { flex-wrap: wrap; row-gap: 8px; }
+  .footer { min-height: 64px; }
+  .chapters { display: none; }
+}
+
+@media (pointer: coarse) {
+  .identity { min-height: 44px; }
+  .identity small { font-size: 9px; }
+  .scrollHint { font-size: 10px; letter-spacing: 0.12em; }
+}
+
+@media (max-width: 767px) {
+  .identity { min-height: 44px; font-size: 10px; letter-spacing: 0.1em; }
+  .identity small { font-size: 9px; letter-spacing: 0.06em; }
+  .eyebrow { font-size: 10px; letter-spacing: 0.12em; }
+  .scrollHint { font-size: 10px; letter-spacing: 0.12em; }
+}
+
+@media (max-width: 374px) {
+  .identity small { font-size: 8.5px; letter-spacing: 0.02em; }
+  .eyebrow { font-size: 9px; letter-spacing: 0.08em; }
+}
+
+/* Phones in landscape: the fixed header already names Fahim, so fit the pitch and actions on one screen. */
+@media (max-width: 767px) and (max-height: 540px) {
+  .masthead, .footer { display: none; }
+  .stage { grid-template-rows: 1fr auto; padding-top: 0; }
+  .story { align-content: center; padding-block: 14px; }
+  .story h1 { font-size: clamp(36px, 12svh, 48px); }
+  .eyebrow { margin-bottom: 10px; }
+  .description { max-width: 440px; margin-top: 10px; font-size: 13px; line-height: 1.55; }
+  .actionRow { padding-bottom: 16px; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) and (max-height: 540px) and (pointer: coarse) {
+  .footer { display: none; }
+  .story { padding-block: 12px; }
+  .actionRow { padding-bottom: 20px; }
 }
