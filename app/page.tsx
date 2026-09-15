@@ -73,10 +73,10 @@ const expertise = [
     number: "04",
     title: "AI Agents",
     outcome: "Automation connected to business tools.",
-    description: "Agents that call tools, connect third-party services and run background tasks, with workflows shaped around real business requirements.",
+    description: "Agents that take real actions in live systems, like the GCL shopping agent that places, updates, cancels and tracks orders, plus third-party integrations and background tasks.",
     tech: ["Model APIs", "Tool calling", "Queues", "Integrations"],
-    proof: "Read about my work at Scaleup",
-    href: "#experience",
+    proof: "See the GCL AI agent",
+    href: "https://gcl-ecom.vercel.app",
   },
 ];
 
@@ -101,20 +101,25 @@ const currentSectionHref = () => {
 };
 
 const stats = [
+  { value: "15+", label: "Web apps delivered" },
+  { value: "10+", label: "Mobile apps delivered" },
+  { value: "E2E", label: "Deployments owned, from server setup to production" },
   { value: "2+", label: "Years building production products" },
-  { value: "15+", label: "Client web projects delivered" },
-  { value: "Lead", label: "Mobile app team delivery" },
-  { value: "3.75", label: "CSE degree CGPA out of 4.00" },
 ];
 
 const projects = [
   {
     number: "01",
-    type: "AI commerce platform",
+    type: "AI agent commerce platform",
     title: "GCL E-Commerce",
     url: "https://gcl-ecom.vercel.app",
     description:
-      "A Bangladesh-focused multi-vendor commerce platform with central administration, vendor workspaces and a full responsive store builder. One customer cart splits into vendor sub-orders, with bKash and COD payments, plus AI-assisted listings, chatbot and search.",
+      "A multi-vendor marketplace for Bangladesh with an AI agent that shops through chat. One cart splits into vendor orders, with bKash and COD payments, dedicated admin and vendor workspaces, and a full store builder.",
+    agent: {
+      label: "AI shopping agent · Live",
+      actions: ["Places orders", "Updates addresses", "Cancels orders", "Checks order status"],
+      note: "Fully working end to end, powered by a production backend deployed on a VPS.",
+    },
     stackDetails: [
       {
         label: "Frontend",
@@ -153,25 +158,51 @@ const projects = [
   },
   {
     number: "04",
-    type: "Concept placeholder",
-    title: "AI Workflow Studio",
-    url: "#contact",
+    type: "Full-stack web & mobile",
+    title: "Prophetic Pathway",
+    url: "https://ej-ppathway-website.vercel.app/",
     description:
-      "A visual automation workspace for connecting AI agents, business tools, approvals and background tasks into reliable workflows.",
-    tech: ["AI Agents", "Tool Calling", "Queues", "TypeScript", "APIs"],
-    visual: "agents",
-    live: false,
+      "Built the responsive web and cross-platform mobile product plus the backend systems that connect seekers with verified spiritual advisors through live video, audio and instant chat, with per-minute wallet billing, recordings and transcripts.",
+    stackDetails: [
+      {
+        label: "Frontend",
+        value: "Next.js · Flutter · Dart · TypeScript · Tailwind CSS",
+      },
+      {
+        label: "Backend",
+        value: "WebRTC consultation services · wallet and session state · per-minute billing · recording and transcript workflows · Cloudinary",
+      },
+    ],
+    tech: [],
+    visual: "pathway",
+    live: true,
+    links: [
+      { label: "Visit live project", url: "https://ej-ppathway-website.vercel.app/", cursor: "Visit" },
+      { label: "App Store", url: "https://apps.apple.com/us/app/prophetic-pathway/id6774471827", cursor: "iOS" },
+      { label: "Google Play", url: "https://play.google.com/store/apps/details?id=com.prophetic.ppathway", cursor: "Android" },
+    ],
   },
   {
     number: "05",
-    type: "Concept placeholder",
-    title: "Cloud Control Plane",
-    url: "#contact",
+    type: "Front-end development",
+    title: "Diamond Auctions",
+    url: "https://diamondauctionsllc.com/",
     description:
-      "An infrastructure console concept for deployment visibility, service health, logs and incident response across cloud environments.",
-    tech: ["AWS", "Docker", "Nginx", "CI/CD", "Observability"],
-    visual: "cloud",
-    live: false,
+      "Built the responsive auction discovery experience for a live production marketplace, including bidder registration and guidance interfaces, multi-role account journeys and a structured seller item-submission workflow.",
+    tech: ["Next.js", "React", "Tailwind CSS", "Auction browsing UI", "Seller intake forms"],
+    visual: "diamond",
+    live: true,
+  },
+  {
+    number: "06",
+    type: "Front-end development",
+    title: "Walk Throughz",
+    url: "https://walkthroughz.com/",
+    description:
+      "Built the responsive location discovery experience, combining media-rich place stories, personal local insights and deal discovery with Cloudinary-powered media delivery and PayPal checkout flows.",
+    tech: ["Next.js", "React", "Tailwind CSS", "Cloudinary", "PayPal"],
+    visual: "walkthroughz",
+    live: true,
   },
 ];
 
@@ -313,6 +344,32 @@ function Menu({ open, activeHref, close }: { open: boolean; activeHref: string; 
   );
 }
 
+type ProjectChoice = { title: string; links: { label: string; url: string; cursor: string }[] };
+
+function ProjectChooser({ choice, open, close }: { choice: ProjectChoice | null; open: boolean; close: () => void }) {
+  return (
+    <div className={`chooser-layer ${open ? "is-open" : ""}`} inert={!open}>
+      <button className="chooser-backdrop" type="button" tabIndex={-1} data-cursor="Close" onClick={close} aria-label="Close" />
+      <div className="chooser-panel" role="dialog" aria-modal="true" aria-labelledby="chooser-title" tabIndex={-1}>
+        <p className="chooser-kicker">Choose where to open</p>
+        <h2 id="chooser-title">{choice?.title}</h2>
+        <ul className="chooser-links">
+          {choice?.links.map((link, index) => (
+            <li key={link.label}>
+              <a href={link.url} target="_blank" rel="noreferrer" data-cursor={link.cursor} onClick={close}>
+                <span className="chooser-index">{String(index + 1).padStart(2, "0")}</span>
+                <span className="chooser-label">{link.label}</span>
+                <Arrow direction="up-right" />
+              </a>
+            </li>
+          ))}
+        </ul>
+        <button className="chooser-cancel" type="button" onClick={close}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 function ProjectVisual({ type }: { type: string }) {
   if (type === "commerce") {
     return (
@@ -337,8 +394,12 @@ function ProjectVisual({ type }: { type: string }) {
             sizes="(max-width: 767px) calc(100vw - 52px), 730px"
           />
         </div>
-        <div className="float-card float-card--orders"><span>Platform suite</span><strong>Store builder</strong></div>
-        <div className="float-card float-card--typed"><span>Operations</span><strong>Admin + vendor control</strong></div>
+        <div className="gcl-agent-chat">
+          <p className="gcl-agent-chat-head"><span className="status-dot" />GCL AI agent</p>
+          <p className="gcl-agent-bubble gcl-agent-bubble--customer">Change the delivery address on my order</p>
+          <p className="gcl-agent-bubble gcl-agent-bubble--agent">Done. Your order will now ship to the new address.</p>
+        </div>
+        <div className="float-card float-card--typed"><span>Deployed</span><strong>Backend live on VPS</strong></div>
       </div>
     );
   }
@@ -381,6 +442,63 @@ function ProjectVisual({ type }: { type: string }) {
     );
   }
 
+  if (type === "pathway") {
+    return (
+      <div className="project-visual project-visual--pathway parallax-layer" data-parallax="-34" aria-hidden="true">
+        <div className="pathway-showcase">
+          <Image
+            className="pathway-showcase-image"
+            src="/projects/prophetic-pathway-showcase.png"
+            alt=""
+            width={1680}
+            height={945}
+            sizes="(max-width: 767px) calc(100vw - 56px), 760px"
+          />
+        </div>
+        <div className="pathway-badge pathway-badge--sessions"><span>Real time</span><strong>Video · Audio · Chat</strong></div>
+        <div className="pathway-badge pathway-badge--billing"><span>Backend</span><strong>Wallet + transcripts</strong></div>
+      </div>
+    );
+  }
+
+  if (type === "diamond") {
+    return (
+      <div className="project-visual project-visual--diamond parallax-layer" data-parallax="-34" aria-hidden="true">
+        <div className="diamond-showcase">
+          <Image
+            className="diamond-showcase-image"
+            src="/projects/diamond-auctions-showcase.png"
+            alt=""
+            width={1680}
+            height={945}
+            sizes="(max-width: 767px) calc(100vw - 56px), 760px"
+          />
+        </div>
+        <div className="diamond-badge diamond-badge--browse"><span>Buyer journey</span><strong>Auction discovery</strong></div>
+        <div className="diamond-badge diamond-badge--sell"><span>Seller journey</span><strong>Structured intake</strong></div>
+      </div>
+    );
+  }
+
+  if (type === "walkthroughz") {
+    return (
+      <div className="project-visual project-visual--walkthroughz parallax-layer" data-parallax="-34" aria-hidden="true">
+        <div className="walkthroughz-showcase">
+          <Image
+            className="walkthroughz-showcase-image"
+            src="/projects/walk-throughz-showcase.png"
+            alt=""
+            width={1680}
+            height={945}
+            sizes="(max-width: 767px) calc(100vw - 56px), 760px"
+          />
+        </div>
+        <div className="walkthroughz-badge walkthroughz-badge--places"><span>Location aware</span><strong>Local discovery</strong></div>
+        <div className="walkthroughz-badge walkthroughz-badge--checkout"><span>Payments</span><strong>PayPal checkout</strong></div>
+      </div>
+    );
+  }
+
   if (type === "analytics") {
     return (
       <div className="project-visual project-visual--analytics parallax-layer" data-parallax="-34" aria-hidden="true">
@@ -405,36 +523,7 @@ function ProjectVisual({ type }: { type: string }) {
     );
   }
 
-  if (type === "agents") {
-    return (
-      <div className="project-visual project-visual--agents parallax-layer" data-parallax="-34" aria-hidden="true">
-        <div className="agent-canvas">
-          <div className="agent-toolbar"><span>Workflow / Lead qualification</span><i /><i /></div>
-          <div className="agent-connector agent-connector--one" />
-          <div className="agent-connector agent-connector--two" />
-          <div className="agent-node agent-node--trigger"><span>Trigger</span><strong>New enquiry</strong><i /></div>
-          <div className="agent-node agent-node--reason"><span>AI agent</span><strong>Qualify lead</strong><i /></div>
-          <div className="agent-node agent-node--action"><span>Action</span><strong>Update CRM</strong><i /></div>
-        </div>
-        <div className="concept-badge concept-badge--agents"><span>Last run</span><strong>Completed in 1.8s</strong></div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="project-visual project-visual--cloud parallax-layer" data-parallax="-34" aria-hidden="true">
-      <div className="cloud-console">
-        <div className="cloud-console-head"><span>Production / Services</span><i /><i /><i /></div>
-        <div className="cloud-health"><span>Global health</span><strong>99.99%</strong><i /></div>
-        <div className="cloud-service-row"><i /><span>api-gateway</span><em>Healthy</em></div>
-        <div className="cloud-service-row"><i /><span>media-worker</span><em>Healthy</em></div>
-        <div className="cloud-service-row"><i /><span>event-queue</span><em>Healthy</em></div>
-        <div className="cloud-terminal"><span>$ deploy production --safe</span><strong>Deployment completed successfully</strong></div>
-      </div>
-      <div className="cloud-orbit"><i /><i /><i /><span>03</span></div>
-      <div className="concept-badge concept-badge--cloud"><span>Region</span><strong>ap-south-1</strong></div>
-    </div>
-  );
+  return null;
 }
 
 function CustomCursor() {
@@ -527,6 +616,9 @@ function CustomCursor() {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeHref, setActiveHref] = useState(navItems[0].href);
+  const [chooserOpen, setChooserOpen] = useState(false);
+  // Kept after closing so the chooser's content stays in place while it animates out.
+  const [choice, setChoice] = useState<ProjectChoice | null>(null);
   const menuOpenerRef = useRef<HTMLButtonElement | null>(null);
   const focusMenuOnOpenRef = useRef(false);
   const theme = useSyncExternalStore(subscribeToTheme, getThemeSnapshot, getServerThemeSnapshot);
@@ -576,6 +668,32 @@ export default function Home() {
     setMenuOpen(false);
     if (restoreFocus) menuOpenerRef.current?.focus({ preventScroll: true });
   };
+
+  // Pressing a card opens its hosted site; cards with several destinations ask which one first.
+  // Clicks on the card's own links, or that finish a text selection, are left alone.
+  const openProject = (event: MouseEvent<HTMLElement>, project: (typeof projects)[number]) => {
+    if (!(event.target instanceof Element) || event.target.closest("a, button, details") || window.getSelection()?.toString()) return;
+    if (project.links && project.links.length > 1) {
+      setChoice({ title: project.title, links: project.links });
+      setChooserOpen(true);
+      return;
+    }
+    window.open(project.url, "_blank", "noopener,noreferrer");
+  };
+
+  useEffect(() => {
+    if (!chooserOpen) return;
+    document.body.classList.add("chooser-open");
+    document.querySelector<HTMLElement>(".chooser-panel")?.focus({ preventScroll: true });
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setChooserOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.classList.remove("chooser-open");
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [chooserOpen]);
 
 
   useEffect(() => desktopMotion(() => {
@@ -753,9 +871,10 @@ export default function Home() {
       <CustomCursor />
       <Rail menuOpen={menuOpen} toggleMenu={toggleMenu} theme={theme} toggleTheme={toggleTheme} />
       <Menu open={menuOpen} activeHref={activeHref} close={closeMenu} />
+      <ProjectChooser choice={choice} open={chooserOpen} close={() => setChooserOpen(false)} />
 
-      {/* Inert while the menu is open so Tab stays within the rail, header and menu. */}
-      <main className="site-main" inert={menuOpen}>
+      {/* Inert while the menu or chooser is open so Tab stays within the rail, header and overlay. */}
+      <main className="site-main" inert={menuOpen || chooserOpen}>
         <SignalHero />
 
         <section id="projects" className="projects-section" aria-labelledby="projects-title">
@@ -763,24 +882,34 @@ export default function Home() {
             <div className="section-heading reveal">
               <p className="section-kicker">&#123; Selected Projects &#125;</p>
               <h2 id="projects-title">Production work with real complexity</h2>
-              <p>A growing mix of shipped platforms and temporary concepts spanning commerce, video, automation, analytics and cloud operations.</p>
+              <p>A growing mix of shipped platforms spanning commerce, video, tailoring, spiritual guidance, auctions and local discovery.</p>
             </div>
 
             <div className="project-list">
               {projects.map((project) => (
-                <a
+                <article
                   className={`project-card project-card--${project.visual} reveal`}
                   data-stack-card
-                  href={project.url}
-                  target={project.live ? "_blank" : undefined}
-                  rel={project.live ? "noreferrer" : undefined}
-                  data-cursor={project.live ? "View" : "Soon"}
+                  data-cursor={project.live ? (project.links && project.links.length > 1 ? "Choose" : "Visit") : undefined}
+                  onClick={project.live ? (event) => openProject(event, project) : undefined}
                   key={project.title}
                 >
                   <div className="project-info">
-                    <div className="project-meta"><span>{project.number}</span><span>{project.type}</span></div>
+                    <div className="project-meta"><span>{project.number}</span><span>{project.agent ? "Featured · AI commerce" : project.type}</span></div>
                     <h3>{project.title.split(" ").map((word, index) => <span key={word}>{index > 0 && " "}<span style={{ whiteSpace: "nowrap" }}>{word}</span></span>)}</h3>
                     <p>{project.description}</p>
+                    {project.agent && (
+                      <div className="project-agent">
+                        <p className="project-agent-status"><span className="status-dot" aria-hidden="true" />{project.agent.label}</p>
+                        <ul className="project-agent-actions" aria-label="What the AI agent does">
+                          {project.agent.actions.map((action) => <li key={action}>{action}</li>)}
+                        </ul>
+                        <p className="project-agent-note">{project.agent.note}</p>
+                      </div>
+                    )}
+                  </div>
+                  <ProjectVisual type={project.visual} />
+                  <div className="project-footer">
                     {project.stackDetails ? (
                       <div className="project-stack-details">
                         {project.stackDetails.map((group) => (
@@ -788,14 +917,33 @@ export default function Home() {
                         ))}
                       </div>
                     ) : (
-                      <div className="tech-list">
-                        {project.tech.map((tech) => <span key={tech}>{tech}</span>)}
+                      <div className="project-tech-group">
+                        <strong>Tech stack</strong>
+                        <div className="tech-list">
+                          {project.tech.map((tech) => <span key={tech}>{tech}</span>)}
+                        </div>
                       </div>
                     )}
-                    <span className="project-link">{project.live ? "View live project" : "Concept case study coming soon"} <Arrow /></span>
+                    <div className="project-actions">
+                      {(project.links ?? [{
+                        label: project.live ? "View live project" : "Concept case study coming soon",
+                        url: project.url,
+                        cursor: project.live ? "View" : "Soon",
+                      }]).map((link) => (
+                        <a
+                          className="project-link"
+                          data-cursor={link.cursor}
+                          href={link.url}
+                          key={link.label}
+                          target={project.live ? "_blank" : undefined}
+                          rel={project.live ? "noreferrer" : undefined}
+                        >
+                          {link.label} <Arrow />
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                  <ProjectVisual type={project.visual} />
-                </a>
+                </article>
               ))}
             </div>
           </div>
@@ -818,12 +966,12 @@ export default function Home() {
                   <h3>Team Lead, Full Stack &amp; Mobile</h3>
                   <p className="progression">Frontend Developer → Full Stack Developer → Team Lead</p>
                   <ul>
-                    <li>Lead a 12-member mobile development team across planning, code review and release delivery, while building the Node.js and Express services that power the apps.</li>
+                    <li>Lead a 12-member mobile development team across planning, code review and release delivery for 10+ mobile apps, while building the Node.js and Express services that power them.</li>
                     <li>Own system design for client businesses (data models, API contracts and service topology) and brief the UI/UX team on business logic so designs reflect real workflows.</li>
-                    <li>Run deployment end to end as DevOps: AWS EC2 and VPS provisioning, Nginx reverse proxy and SSL, and a dev / UAT / production branch release strategy.</li>
+                    <li>Run deployments end to end as DevOps across web and mobile products: AWS EC2 and VPS provisioning, Nginx reverse proxy and SSL, and a dev / UAT / production branch release strategy.</li>
                     <li>Built and operate the media upload pipeline on AWS S3 and Cloudflare R2, covering presigned uploads, object-key handling and HLS video streaming.</li>
                     <li>Develop AI agents that automate client business operations using frontier model APIs, with tool calling, background job queues and third-party integrations.</li>
-                    <li>Delivered 15+ client web projects with Next.js, TypeScript, Tailwind CSS and shadcn/ui, then expanded into full-stack delivery with Express and Node.js.</li>
+                    <li>Delivered 15+ client web apps with Next.js, TypeScript, Tailwind CSS and shadcn/ui, then expanded into full-stack delivery with Express and Node.js.</li>
                   </ul>
                   <ul className="timeline-stack" aria-label="Core stack">
                     {["Next.js", "TypeScript", "Node.js", "Express", "AWS EC2 / S3", "Cloudflare R2", "Nginx", "AI agents"].map((tech) => (
